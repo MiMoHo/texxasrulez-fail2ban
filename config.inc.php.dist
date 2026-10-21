@@ -1,6 +1,8 @@
 <?php
 
 // Trust proxy headers only when Roundcube is behind one of these proxy IPs.
+// With several proxies in a row, list every hop: X-Forwarded-For is read from
+// the right and the first address that is not listed here is logged.
 $config['fail2ban_trusted_proxies'] = array();
 
 // Ordered list of server variables checked for the client IP when the proxy is trusted.

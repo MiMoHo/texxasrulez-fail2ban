@@ -57,12 +57,21 @@ class fail2ban extends rcube_plugin
         continue;
       }
 
-      foreach (explode(',', $_SERVER[$header]) as $forwarded_ip) {
-        $forwarded_ip = trim($forwarded_ip);
+      // Proxies append to the right, so everything left of the last trusted hop
+      // is client-controlled. Walk from the right, skip our own proxies and take
+      // the first address that is not one of them.
+      $hops = array_reverse(array_map('trim', explode(',', $_SERVER[$header])));
+      foreach ($hops as $forwarded_ip) {
+        if (in_array($forwarded_ip, $trusted_proxies, true)) {
+          continue;
+        }
 
         if ($this->is_valid_ip($forwarded_ip)) {
           return $forwarded_ip;
         }
+
+        // Not an address our proxy added: do not look further left.
+        break;
       }
     }
 
